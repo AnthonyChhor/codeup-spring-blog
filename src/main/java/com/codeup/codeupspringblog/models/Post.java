@@ -1,11 +1,26 @@
 package com.codeup.codeupspringblog.Controller;
 
 
+import jakarta.persistence.*;
 
+@Entity
+@Table(name="posts")
 public class Post {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 50)
     private String title;
+
+
+
+
+
+
     private String body;
+
 
 
     public String getTitle() {
@@ -23,4 +38,13 @@ public class Post {
     public void setBody(String body) {
         this.body = body;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
 }
