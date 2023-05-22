@@ -1,4 +1,4 @@
-package com.codeup.codeupspringblog.Controller;
+package com.codeup.codeupspringblog.controllers;
 
 import com.codeup.codeupspringblog.models.Post;
 import com.codeup.codeupspringblog.repositories.PostRepository;
@@ -13,11 +13,14 @@ import java.util.List;
 public class PostController {
 
     private final PostRepository postDao;
-    public PostController(PostRepository postDao) { this.postDao = postDao;}
+
+    public PostController(PostRepository postDao) {
+        this.postDao = postDao;
+    }
 
     @GetMapping("posts/index")
     public String indexPage(Model model) {
-        List<Post> posts = new ArrayList<>();
+        List<Post> posts = postDao.findAll();
 
         Post post1 = new Post();
         post1.setTitle("First Post");
@@ -35,28 +38,40 @@ public class PostController {
         return "posts/index";
     }
 
-    @GetMapping("/{id}")
-    public String idPage(@PathVariable int id, Model model) {
-        Post post = new Post();
-        post.setTitle("Show post");
-        post.setBody("This is the show post.");
 
-        model.addAttribute("post", post);
-
-        return "posts/show";
-    }
-
-
-    @GetMapping("/create")
-    @ResponseBody
+    @GetMapping("posts/create")
     public String createPost() {
         return "posts/create";
     }
 
-    @PostMapping("/create")
-    @ResponseBody
-    public String createForm() {
-        return "This is where you create a new post";
+    @PostMapping("/posts/create")
+    public String createPost(@RequestParam String title, @RequestParam String body) {
+        Post post = new Post(title, body);
+        postDao.save(post);
+        return "redirect:/posts";
     }
+
+    @PostMapping("/posts/delete")
+    public String deletePost(@RequestParam Long id) {
+        postDao.deleteById(id);
+        return "redirect:/posts";
+    }
+
+    @GetMapping("/posts/{id}")
+    public String getId(@PathVariable long id, Model model) {
+        Post post = postDao.getReferenceById(id);
+        System.out.println(post.getUser().getEmail());
+        model.addAttribute("post", post);
+        return "posts/show";
+    }
+
+    @PostMapping("/posts/{id}")
+    public String delete(@RequestParam long deleteId) {
+
+        postDao.deleteById(deleteId);
+
+        return "redirect:/posts";
+    }
+
 
 }

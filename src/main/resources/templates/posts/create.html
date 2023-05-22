@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Create</title>
+</head>
+<body>
+<form th:action="@{/posts/create}" method="post">
+  <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+  <label for="title">Title:</label><br>
+  <input type="text" id="title" name="title" required><br><br>
+  <label for="body">Body:</label><br>
+  <textarea id="body" name="body" rows="4" cols="50" required></textarea><br><br>
+  <input type="submit" value="Submit">
+</form>
+</body>
+</html>
