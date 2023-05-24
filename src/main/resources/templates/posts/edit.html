@@ -2,17 +2,17 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Create</title>
+  <title>Edit Post</title>
 </head>
 <body>
-<form th:action="@{/posts/create}" method="post">
-  <!--/*@thymesVar id="posts" type=""*/-->
-  <input type="hidden" th:each="post : ${posts}">
+<h1>Edit Post</h1>
+<form th:object="${post}" method="POST" th:action="@{/posts/{id}/edit(id=${post.id})}">
+  <input type="hidden" id="user_id" th:field="*{user}">
   <label for="title">Title:</label><br>
   <input type="text" id="title" name="title" th:field="*{post.title}" required><br><br>
   <label for="body">Body:</label><br>
   <textarea id="body" name="body" rows="4" cols="50" th:field="*{post.body}" required></textarea><br><br>
-  <input type="submit" value="Submit">
+  <input type="submit" value="Save">
 </form>
 </body>
 </html>

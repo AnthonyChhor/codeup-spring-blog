@@ -1,22 +1,37 @@
 package com.codeup.codeupspringblog.controllers;
 
 import com.codeup.codeupspringblog.models.Post;
+import com.codeup.codeupspringblog.models.User;
 import com.codeup.codeupspringblog.repositories.PostRepository;
+import com.codeup.codeupspringblog.repositories.UserRepository;
+import com.codeup.codeupspringblog.services.EmailService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 public class PostController {
 
-    private final PostRepository postDao;
+    private  UserRepository userDao;
 
-    public PostController(PostRepository postDao) {
+
+    private  PostRepository postDao;
+
+    public PostController(UserRepository userDao, PostRepository postDao) {
+        this.userDao = userDao;
         this.postDao = postDao;
     }
+
 
     @GetMapping("posts/index")
     public String indexPage(Model model) {
@@ -45,16 +60,21 @@ public class PostController {
     }
 
     @PostMapping("/posts/create")
-    public String createPost(@RequestParam String title, @RequestParam String body) {
-        Post post = new Post(title, body);
+
+    public String postCreate(@ModelAttribute("post") Post post) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String body = "your created a post '" + post.getTitle() + "' and the description '" + post.getBody() + "'.";
+        post.setUser(user);
         postDao.save(post);
+        EmailService emailService = null;
+        emailService.prepareAndSend(post, "Post Creation", body);
         return "redirect:/posts";
     }
 
     @PostMapping("/posts/delete")
     public String deletePost(@RequestParam Long id) {
         postDao.deleteById(id);
-        return "redirect:/posts";
+        return "redirect:/posts/index";
     }
 
     @GetMapping("/posts/{id}")
@@ -73,5 +93,17 @@ public class PostController {
         return "redirect:/posts";
     }
 
+    @GetMapping("/posts/{id}/edit")
+    public String editPostForm(@PathVariable long id, Model model) {
+        Post post = postDao.findById(id).orElse(null);
+        if (post == null) {
+            return "error";
+        }
+        model.addAttribute("post", post);
+        return "posts/edit";
+    }
 
 }
+
+
+
